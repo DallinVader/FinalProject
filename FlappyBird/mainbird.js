@@ -43,7 +43,7 @@ class BasicObject{
     draw() {
         if(this.Image){
             ctx.save()
-            ctx.drawImage(this.Image, this.position.x, this.position.y, this.Size.x, this.Size.y);
+            ctx.drawImage(this.Image, Math.round(this.position.x), Math.round(this.position.y), this.Size.x, this.Size.y);
             ctx.restore();
         }
         else{
@@ -75,6 +75,11 @@ function Update(){
     GlobalTime += 0.01;
 
     DrawAllDrawableObjects();
+
+    console.log(PlayerBird.position);
+    if(PlayerBird.position.x != Math.round(PlayerBird.position.x)){
+        PlayerBird.position.x = Math.round(PlayerBird.position.x);
+    }
 
     if(PlayerBird.position.y < 0){
         PlayerBird.position.y = 0;
@@ -212,7 +217,7 @@ function MoveSideScrollingObjs(){
         if(CurrentObj.position.x < 0 - CurrentObj.Size.x){
             CurrentObj.position.x = canvas.width + (Math.random() * canvas.width);
         }
-        
+
         CurrentObj.position.x += -GlobalSpeedScale;
     }
 }
@@ -238,7 +243,7 @@ setTimeout("DrawAllDrawableObjects()", 100)
 
 let StartedBool = false;
 document.addEventListener("keydown", function(event){
-    if(event.key === "w"){
+    if(event.key){
         if(!StartedBool){
             Update();
             StartedBool = true
@@ -246,18 +251,14 @@ document.addEventListener("keydown", function(event){
         if(GlobalSpeedScale == 0){
             location.reload();
         }
+    }
+    if(event.key === "w" || event.key === "W"){
+
         if(PlayerBird.Velocity.y > -2){
             PlayerBird.Velocity.y += -1;
         }
     }
-    if(event.key === "s"){
-        if(!StartedBool){
-            Update();
-            StartedBool = true
-        }
-        if(GlobalSpeedScale == 0){
-            location.reload();
-        }
+    if(event.key === "s" || event.key === "S"){
 
         if(PlayerBird.Velocity.y < 2){
             PlayerBird.Velocity.y += 1;
