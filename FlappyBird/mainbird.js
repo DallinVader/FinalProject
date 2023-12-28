@@ -17,12 +17,13 @@ let AntiAirGunObjs = [];
 let ExplosionObjs = [];
 
 class BasicObject{
-    constructor(ImageSrc, ImageSizePixles, position, SideScrollingObj, VelocityX, VelocityY, CoolDownTime){
+    constructor(ImageSrc, ImageSizePixles, position, SideScrollingObj, VelocityX, VelocityY, CoolDownTime, UseGravity = true){
         this.position = position;
         this.IsSideScrollingObj = SideScrollingObj;
         this.Velocity = {x: VelocityX, y: VelocityY}
         this.Size = ImageSizePixles;
         this.CoolDownTime = 0;
+        this.UseGravity = UseGravity;
         if(CoolDownTime){
             this.CoolDownTime = CoolDownTime;
         }
@@ -51,7 +52,7 @@ class BasicObject{
     }
 }
 
-const PlayerBird = new BasicObject("Plane.png", {x: 32, y: 16}, {x: Canvas.width / 4, y: 0}, false, 0, 3);
+const PlayerBird = new BasicObject("Plane.png", {x: 32, y: 16}, {x: Canvas.width / 4, y: 0}, false, 0, 0.01, 0, false);
 const House = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 const House1 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 const House2 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
@@ -75,8 +76,22 @@ function Update(){
 
     DrawAllDrawableObjects();
 
+    if(PlayerBird.position.y < 0){
+        PlayerBird.position.y = 0;
+    }
     if(PlayerBird.position.x < 0){
-        
+        PlayerBird.position.x = 0;
+    }
+    if(PlayerBird.position.x <= 0){
+        if(PlayerBird.position.y < canvas.height - 50){
+            PlayerBird.Velocity.y = 1.2;
+        }
+        else{
+            PlayerBird.Velocity.y = 0.5;
+        }
+        console.log(PlayerBird.Velocity.y);
+        ExplosionObjs.push(new BasicObject("Smoke.png", {x: 8, y: 8}, {x: PlayerBird.position.x + PlayerBird.Size.x - 8.5 - (Math.random() * 10), y: PlayerBird.position.y + 2}, true, 0, -1.2, GlobalTime + 1, false));
+
     }
     
     AntiAirGuns();
@@ -104,7 +119,7 @@ function AntiAirGuns(){
 function CheckExplosions(){
     for (let x = 0; x < ExplosionObjs.length; x++) {
         let CurrentExplosion = ExplosionObjs[x];
-        if(CurrentExplosion.CoolDownTime < GlobalTime){
+        if(CurrentExplosion.CoolDownTime < GlobalTime || CurrentExplosion.position.x <= -CurrentExplosion.Size.x + 1){
             RemoveObjFromObjsToDraw(CurrentExplosion);
             ExplosionObjs.splice(x, 1);
         }
@@ -122,7 +137,6 @@ function MoveBullets(){
             PlayerBird.Velocity.x = -1
             
             if(CurrentBullet.CoolDownTime == 0){
-                console.log("create explosion")
                 ExplosionObjs.push(new BasicObject("Explosion.png", {x: 8, y: 8}, {x: CurrentBullet.position.x, y: CurrentBullet.position.y}, true, 0, 0, GlobalTime + 0.1));
                 CurrentBullet.CoolDownTime = 1;
             }
@@ -165,17 +179,23 @@ function RemoveObjFromObjsToDraw(ObjToRemove){
 function MovePhysicsObjects(){
     for (let x = 0; x < PhysicsObjs.length; x++) {
         let CurrentObj = PhysicsObjs[x];
+
         CurrentObj.position.x += CurrentObj.Velocity.x;
         CurrentObj.position.y += CurrentObj.Velocity.y;
         CurrentObj.Velocity.x = CurrentObj.Velocity.x / 1.05;
 
         if(CurrentObj.position.y < canvas.height - 10){
-            CurrentObj.Velocity.y = CurrentObj.Velocity.y + GlobalGravity;
+            if(CurrentObj.UseGravity){
+                CurrentObj.Velocity.y = CurrentObj.Velocity.y + GlobalGravity;
+            }
+            else{
+                CurrentObj.Velocity.y /= 1.025;
+            }
         }
         else{
-            CurrentObj.Velocity.y = 0;
-            CurrentObj.position.y = canvas.height - CurrentObj.Size.y;
             if(CurrentObj == PlayerBird){
+                CurrentObj.Velocity.y = 0;
+                CurrentObj.position.y = canvas.height - CurrentObj.Size.y;
                 CurrentObj.position.y = canvas.height - 10;
                 PhysicsObjs.splice(0, 1);
                 GlobalSpeedScale = 0.5;
@@ -188,10 +208,12 @@ function MovePhysicsObjects(){
 function MoveSideScrollingObjs(){
     for (let x = 0; x < SideScrollingObjs.length; x++) {
         let CurrentObj = SideScrollingObjs[x];
-        CurrentObj.position.x += -GlobalSpeedScale;
+
         if(CurrentObj.position.x < 0 - CurrentObj.Size.x){
             CurrentObj.position.x = canvas.width + (Math.random() * canvas.width);
         }
+        
+        CurrentObj.position.x += -GlobalSpeedScale;
     }
 }
 
@@ -206,6 +228,7 @@ function MoveCloudsIndependently(){
 function DrawAllDrawableObjects(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    ctx.fillText(Math.round(GlobalTime), canvas.width / 1.04, canvas.height / 20);
     for (let x = 0; x < ObjectsToDraw.length; x++) {
         ObjectsToDraw[x].draw();
     }
@@ -215,7 +238,7 @@ setTimeout("DrawAllDrawableObjects()", 100)
 
 let StartedBool = false;
 document.addEventListener("keydown", function(event){
-    if(event.key === " "){
+    if(event.key === "w"){
         if(!StartedBool){
             Update();
             StartedBool = true
@@ -223,12 +246,21 @@ document.addEventListener("keydown", function(event){
         if(GlobalSpeedScale == 0){
             location.reload();
         }
-        else{
-            //GlobalSpeedScale += 1
+        if(PlayerBird.Velocity.y > -2){
+            PlayerBird.Velocity.y += -1;
+        }
+    }
+    if(event.key === "s"){
+        if(!StartedBool){
+            Update();
+            StartedBool = true
+        }
+        if(GlobalSpeedScale == 0){
+            location.reload();
         }
 
-        if(PlayerBird.position.y >= 0 && PlayerBird.position.x >= 0){
-            PlayerBird.Velocity.y = -4;
+        if(PlayerBird.Velocity.y < 2){
+            PlayerBird.Velocity.y += 1;
         }
     }
 })
