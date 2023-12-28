@@ -8,4 +8,5 @@ canvas{
     outline: auto;
     outline-style: groove;
     background-color: aqua;
+    image-rendering: pixelated;
 }
