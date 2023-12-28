@@ -1,0 +1,11 @@
+canvas{
+    position: absolute;
+    scale: auto;
+    left: 25%;
+    top: 15%;
+    width: 50%;
+    height: 50%;
+    outline: auto;
+    outline-style: groove;
+    background-color: aqua;
+}
