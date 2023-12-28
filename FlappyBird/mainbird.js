@@ -87,7 +87,6 @@ function MoveSideScrollingObjs(){
         CurrentObj.position.x += CurrentObj.Velocity.x * GlobalSpeedScale;
         if(CurrentObj.position.x < 0 - CurrentObj.Size.x){
             CurrentObj.position.x = canvas.width;
-            CurrentObj.Velocity = {x: -Math.abs(Math.random() * 1.25 + 0.75), y:0}
         }
     }
 }
@@ -96,6 +95,7 @@ function MoveCloudsIndependently(){
     for (let x = 0; x < CloudsObjs.length; x++){
         let CurrentCloudObj = CloudsObjs[x];
         CurrentCloudObj.position.x += CurrentCloudObj.Velocity.x * 0.2;
+        CloudsObjs.Velocity = {x: -Math.abs(Math.random() * 1.25 + 0.75), y:0}
     }
 }
 
