@@ -96,7 +96,6 @@ function Update(){
     
     if(GlobalSpeedScale < 1){
         ctx.fillText("Game Over", canvas.width / 2 - 25, canvas.height / 2);
-        ctx.fillText("Press Any Key To Restart", canvas.width / 2 - 60, canvas.height / 2 + 10);
     }
     else{
         GlobalSpeedScale = 1 + PlayerBird.position.x / (canvas.width / 2);
@@ -316,17 +315,27 @@ function MoveSideScrollingObjs(){
 function MoveCloudsIndependently(){
     for (let x = 0; x < CloudsObjs.length; x++){
         let CurrentCloudObj = CloudsObjs[x];
-        CurrentCloudObj.position.x += CurrentCloudObj.Velocity.x * 0.2;
+        CurrentCloudObj.position.x -= 0.05;
         CloudsObjs.Velocity = {x: -Math.abs(Math.random() * 1.25 + 0.75), y:0}
     }
 }
 
 ctx.font = "10px Comic Sans MS"
 
+let CurrentScore;
 function DrawAllDrawableObjects(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillText(Math.round(GlobalTime), Math.round(canvas.width / 1.04), Math.round(canvas.height / 20));
+    if(GlobalSpeedScale > 0){
+        ctx.fillText(Math.round(GlobalTime), Math.round(canvas.width / 1.04), Math.round(canvas.height / 20));
+    }
+    else{
+        if(!CurrentScore){
+            CurrentScore = Math.round(GlobalTime);
+        }
+        ctx.fillText("Press Any Key To Restart", canvas.width / 2 - 60, canvas.height / 2 + 10);
+        ctx.fillText(Math.round(CurrentScore), Math.round(canvas.width / 2), Math.round(canvas.height / 3));
+    }
     
     for (let x = 0; x < ObjectsToDraw.length; x++) {
         ObjectsToDraw[x].draw();
