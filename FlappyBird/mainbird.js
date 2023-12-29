@@ -68,9 +68,6 @@ const House = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32
 const House1 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 const House2 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 
-setTimeout("SpawnDropShipment()", DropShipmentSpawnTime);
-setTimeout("SpawnEnemyPlane()", EnemyPlaneSpawnTime * 1000);
-
 AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width - 75, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
 AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 80, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
 AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
@@ -83,15 +80,26 @@ for (let x = 0; x < 30; x++) {
 for (let x = 0; x < 10; x++) {
     let Grass = new BasicObject("Grass.png", {x: 80, y: 16}, {x: Math.abs(Math.random() * canvas.width), y: canvas.height - 16}, true, GlobalGroundSpeed, 0);
 }
+let GoingDownAudio = false;
 
+function Start(){
+    new Audio("Assets/SoundFx/16BitMusicOver-LeveledCPU.mp3").play();
+    setTimeout("SpawnDropShipment()", DropShipmentSpawnTime);
+    setTimeout("SpawnEnemyPlane()", EnemyPlaneSpawnTime * 1000);
+    setTimeout(function SpawnNewAntiAirWeapons(){AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));}, (EnemyPlaneSpawnTime * 1.25) * 1000);
+}
 function Update(){
     GlobalTime += 0.0175;
+
     
     DrawAllDrawableObjects();
     
     if(GlobalSpeedScale < 1){
         ctx.fillText("Game Over", canvas.width / 2 - 25, canvas.height / 2);
         ctx.fillText("Press Any Key To Restart", canvas.width / 2 - 60, canvas.height / 2 + 10);
+    }
+    else{
+        GlobalSpeedScale = 1 + PlayerBird.position.x / (canvas.width / 2);
     }
 
     if(PlayerBird.position.x != Math.round(PlayerBird.position.x)){
@@ -111,6 +119,10 @@ function Update(){
         }
         else{
             PlayerBird.Velocity.y = 0.5;
+        }
+        if(GoingDownAudio == false){
+            new Audio("Assets/SoundFx/PlaneGoingDown.wav").play();
+            GoingDownAudio = true;
         }
         ExplosionObjs.push(new BasicObject("Smoke.png", {x: 8, y: 8}, {x: PlayerBird.position.x + PlayerBird.Size.x - 8.5 - (Math.random() * 10), y: PlayerBird.position.y + 2}, true, 0, -1.2, GlobalTime + 1, false));
 
@@ -136,6 +148,7 @@ function MoveDropShipments(){
         CurrentShipment.Velocity.y = CurrentShipment.StartVelocity.y;
         
         if(CheckForCollisionWithObj(CurrentShipment, PlayerBird)){
+            new Audio("Assets/SoundFx/PickupBox.wav").play();
             PlayerBird.Velocity.x += 2;
             RemoveObjFromObjsToDraw(CurrentShipment);
             DropShipmentObjs.splice(x, 1);
@@ -163,6 +176,7 @@ function AiEnemyPlanes(){
         if(CurrentEnemyPlane.position.y < PlayerBird.position.y + PlayerBird.Size.y && CurrentEnemyPlane.position.y > PlayerBird.position.y - PlayerBird.Size.y){
             if(CurrentEnemyPlane.CoolDownTime <= GlobalTime){
                 CurrentEnemyPlane.CoolDownTime = GlobalTime + EnemyPlanesCooldown;
+                new Audio("Assets/SoundFx/PlaneFire.wav").play();
                 BulletsObjs.push(new BasicObject("Bullet.png", {x: 5, y: 5}, {x: CurrentEnemyPlane.position.x + (Math.random() * 4), y: CurrentEnemyPlane.position.y}, true, -5, 0, 0.05));
             }
         }
@@ -189,6 +203,7 @@ function AntiAirGuns(){
         const CurrentAntiAirGun = AntiAirGunObjs[x];
         if(CurrentAntiAirGun.CoolDownTime < GlobalTime){
             CurrentAntiAirGun.CoolDownTime = GlobalTime + AntiAirGunCooldown + Math.random();
+            new Audio("Assets/SoundFx/AntiAirFire.wav").play();
             BulletsObjs.push(new BasicObject("AntiAirShell.png", {x: 5, y: 5}, {x: CurrentAntiAirGun.position.x, y: canvas.height - CurrentAntiAirGun.Size.y}, true, -3, -3, 0.15));
         }
         
@@ -217,6 +232,7 @@ function MoveBullets(){
             PlayerBird.Velocity.x -= CurrentBullet.CoolDownTime;
             
             if(!CurrentBullet.UseGravity){
+                new Audio("Assets/SoundFx/PlaneHit.wav").play();
                 ExplosionObjs.push(new BasicObject("Explosion.png", {x: 8, y: 8}, {x: CurrentBullet.position.x, y: CurrentBullet.position.y}, true, 0, 0, GlobalTime + 0.1));
                 CurrentBullet.UseGravity = true;
             }
@@ -279,7 +295,7 @@ function MovePhysicsObjects(){
                 CurrentObj.position.y = canvas.height - 10;
                 PhysicsObjs.splice(0, 1);
                 GlobalSpeedScale = 0.5;
-                setTimeout(function StopMoveing(){GlobalSpeedScale = 0.25;setTimeout(function StopMoveing2(){GlobalSpeedScale = 0;}, 1000)}, 500)
+                setTimeout(function StopMoveing(){new Audio("Assets/SoundFx/PlaneGoingDown.wav").play(); GlobalSpeedScale = 0.25; setTimeout(function StopMoveing2(){GlobalSpeedScale = 0;}, 1000)}, 500)
             }
         }
     }
@@ -324,6 +340,7 @@ let StartedBool = false;
 document.addEventListener("keydown", function(event){
     if(event.key){
         if(!StartedBool){
+            Start();
             Update();
             StartedBool = true
         }
