@@ -86,8 +86,13 @@ for (let x = 0; x < 10; x++) {
 
 function Update(){
     GlobalTime += 0.0175;
-
+    
     DrawAllDrawableObjects();
+    
+    if(GlobalSpeedScale < 1){
+        ctx.fillText("Game Over", canvas.width / 2 - 25, canvas.height / 2);
+        ctx.fillText("Press Any Key To Restart", canvas.width / 2 - 60, canvas.height / 2 + 10);
+    }
 
     if(PlayerBird.position.x != Math.round(PlayerBird.position.x)){
         PlayerBird.position.x = Math.round(PlayerBird.position.x);
@@ -100,6 +105,7 @@ function Update(){
         PlayerBird.position.x = 0;
     }
     if(PlayerBird.position.x <= 0){
+        
         if(PlayerBird.position.y < canvas.height - 50){
             PlayerBird.Velocity.y = 1.2;
         }
@@ -299,16 +305,20 @@ function MoveCloudsIndependently(){
     }
 }
 
+ctx.font = "10px Comic Sans MS"
+
 function DrawAllDrawableObjects(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillText(Math.round(GlobalTime), canvas.width / 1.04, canvas.height / 20);
+    ctx.fillText(Math.round(GlobalTime), Math.round(canvas.width / 1.04), Math.round(canvas.height / 20));
+    
     for (let x = 0; x < ObjectsToDraw.length; x++) {
         ObjectsToDraw[x].draw();
     }
 }
 
-setTimeout("DrawAllDrawableObjects()", 100)
+setTimeout("DrawAllDrawableObjects() ", 100)
+setTimeout(function PressAnykeyToStart(){ctx.fillText("Press Any Key To Start", canvas.width / 2 - 60, canvas.height / 2 + 10);}, 111);
 
 let StartedBool = false;
 document.addEventListener("keydown", function(event){

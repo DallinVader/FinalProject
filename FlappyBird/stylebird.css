@@ -1,10 +1,10 @@
 canvas{
     position: absolute;
     scale: auto;
-    left: 25%;
-    top: 15%;
-    width: 50%;
-    height: 50%;
+    left: 15%;
+    top: 10%;
+    width: 75%;
+    height: 75%;
     outline: auto;
     outline-style: groove;
     background-color: aqua;
