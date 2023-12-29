@@ -1,6 +1,13 @@
 const canvas = document.getElementById("Canvas");
 const ctx = canvas.getContext("2d");
 
+console.log(canvas.width);
+console.log(canvas.height);
+canvas.width = 350;
+canvas.height = 175;
+console.log(canvas.width);
+
+
 const GlobalGravity = 0.3;
 const GlobalGroundSpeed = -0.75;
 let GlobalTime = 0;
@@ -320,7 +327,9 @@ function MoveCloudsIndependently(){
     }
 }
 
-ctx.font = "10px Comic Sans MS"
+let scale = window.devicePixelRatio;
+ctx.scale(scale, scale); 
+ctx.font = '10px Arial'; 
 
 let CurrentScore;
 function DrawAllDrawableObjects(){
