@@ -62,23 +62,23 @@ class BasicObject{
     }
 }
 
-const PlayerBird = new BasicObject("Plane.png", {x: 32, y: 16}, {x: Canvas.width / 3, y: 0}, false, 0, 0.01, 0, false);
+const PlayerBird = new BasicObject("Assets/Art/Plane.png", {x: 32, y: 16}, {x: Canvas.width / 3, y: 0}, false, 0, 0.01, 0, false);
 
-const House = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
-const House1 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
-const House2 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
+const House = new BasicObject("Assets/Art/House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
+const House1 = new BasicObject("Assets/Art/House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
+const House2 = new BasicObject("Assets/Art/House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 
-AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width - 75, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
-AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 80, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
-AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
+AntiAirGunObjs.push(new BasicObject("Assets/Art/AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width - 75, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
+AntiAirGunObjs.push(new BasicObject("Assets/Art/AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 80, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
+AntiAirGunObjs.push(new BasicObject("Assets/Art/AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
 
-const Grass = new BasicObject("Grass.png", {x: 80, y: 16}, {x: Canvas.width + Math.abs(Math.random() * canvas.width), y: canvas.height - 16}, true, GlobalGroundSpeed, 0);
+const Grass = new BasicObject("Assets/Art/Grass.png", {x: 80, y: 16}, {x: Canvas.width + Math.abs(Math.random() * canvas.width), y: canvas.height - 16}, true, GlobalGroundSpeed, 0);
 
 for (let x = 0; x < 30; x++) {
-    CloudsObjs.push(new BasicObject("Cloud1.png", {x: 32, y: 16}, {x: Math.floor(Math.random() * (Canvas.width * 2)), y: Math.floor(Math.random() * Canvas.height / 2.5) - 6}, true, -Math.abs(Math.random() * 0.75 + 0.5), 0));
+    CloudsObjs.push(new BasicObject("Assets/Art/Cloud1.png", {x: 32, y: 16}, {x: Math.floor(Math.random() * (Canvas.width * 2)), y: Math.floor(Math.random() * Canvas.height / 2.5) - 6}, true, -Math.abs(Math.random() * 0.75 + 0.5), 0));
 }
 for (let x = 0; x < 10; x++) {
-    let Grass = new BasicObject("Grass.png", {x: 80, y: 16}, {x: Math.abs(Math.random() * canvas.width), y: canvas.height - 16}, true, GlobalGroundSpeed, 0);
+    let Grass = new BasicObject("Assets/Art/Grass.png", {x: 80, y: 16}, {x: Math.abs(Math.random() * canvas.width), y: canvas.height - 16}, true, GlobalGroundSpeed, 0);
 }
 let GoingDownAudio = false;
 
@@ -86,7 +86,7 @@ function Start(){
     new Audio("Assets/SoundFx/16BitMusicOver-LeveledCPU.mp3").play();
     setTimeout("SpawnDropShipment()", DropShipmentSpawnTime);
     setTimeout("SpawnEnemyPlane()", EnemyPlaneSpawnTime * 1000);
-    setTimeout(function SpawnNewAntiAirWeapons(){AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));}, (EnemyPlaneSpawnTime * 1.25) * 1000);
+    setTimeout(function SpawnNewAntiAirWeapons(){AntiAirGunObjs.push(new BasicObject("Assets/Art/AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));}, (EnemyPlaneSpawnTime * 1.25) * 1000);
 }
 function Update(){
     GlobalTime += 0.0175;
@@ -124,7 +124,7 @@ function Update(){
             new Audio("Assets/SoundFx/PlaneGoingDown.wav").play();
             GoingDownAudio = true;
         }
-        ExplosionObjs.push(new BasicObject("Smoke.png", {x: 8, y: 8}, {x: PlayerBird.position.x + PlayerBird.Size.x - 8.5 - (Math.random() * 10), y: PlayerBird.position.y + 2}, true, 0, -1.2, GlobalTime + 1, false));
+        ExplosionObjs.push(new BasicObject("Assets/Art/Smoke.png", {x: 8, y: 8}, {x: PlayerBird.position.x + PlayerBird.Size.x - 8.5 - (Math.random() * 10), y: PlayerBird.position.y + 2}, true, 0, -1.2, GlobalTime + 1, false));
 
     }
     
@@ -161,12 +161,12 @@ function MoveDropShipments(){
 }
 
 function SpawnEnemyPlane(){
-    AiEnemyPlaneObjs.push(new BasicObject("EnemyPlane.png", {x: 32, y: 16}, {x: Canvas.width + 32, y: 0}, true, -1, 1, 0, false));
+    AiEnemyPlaneObjs.push(new BasicObject("Assets/Art/EnemyPlane.png", {x: 32, y: 16}, {x: Canvas.width + 32, y: 0}, true, -1, 1, 0, false));
     setTimeout("SpawnEnemyPlane()", EnemyPlaneSpawnTime * 1000);
 }
 
 function SpawnDropShipment(){
-    DropShipmentObjs.push(new BasicObject("DropShipment.png", {x: 16, y: 16}, {x: Canvas.width, y: 0}, true, GlobalGroundSpeed + (Math.random() * 2), 0.2, 0, false));
+    DropShipmentObjs.push(new BasicObject("Assets/Art/DropShipment.png", {x: 16, y: 16}, {x: Canvas.width, y: 0}, true, GlobalGroundSpeed + (Math.random() * 2), 0.2, 0, false));
     setTimeout("SpawnDropShipment()", DropShipmentSpawnTime * 1000);
 }
 
@@ -177,7 +177,7 @@ function AiEnemyPlanes(){
             if(CurrentEnemyPlane.CoolDownTime <= GlobalTime){
                 CurrentEnemyPlane.CoolDownTime = GlobalTime + EnemyPlanesCooldown;
                 new Audio("Assets/SoundFx/PlaneFire.wav").play();
-                BulletsObjs.push(new BasicObject("Bullet.png", {x: 5, y: 5}, {x: CurrentEnemyPlane.position.x + (Math.random() * 4), y: CurrentEnemyPlane.position.y}, true, -5, 0, 0.05));
+                BulletsObjs.push(new BasicObject("Assets/Art/Bullet.png", {x: 5, y: 5}, {x: CurrentEnemyPlane.position.x + (Math.random() * 4), y: CurrentEnemyPlane.position.y}, true, -5, 0, 0.05));
             }
         }
         CurrentEnemyPlane.Velocity.x = -1;
@@ -204,7 +204,7 @@ function AntiAirGuns(){
         if(CurrentAntiAirGun.CoolDownTime < GlobalTime){
             CurrentAntiAirGun.CoolDownTime = GlobalTime + AntiAirGunCooldown + Math.random();
             new Audio("Assets/SoundFx/AntiAirFire.wav").play();
-            BulletsObjs.push(new BasicObject("AntiAirShell.png", {x: 5, y: 5}, {x: CurrentAntiAirGun.position.x, y: canvas.height - CurrentAntiAirGun.Size.y}, true, -3, -3, 0.15));
+            BulletsObjs.push(new BasicObject("Assets/Art/AntiAirShell.png", {x: 5, y: 5}, {x: CurrentAntiAirGun.position.x, y: canvas.height - CurrentAntiAirGun.Size.y}, true, -3, -3, 0.15));
         }
         
     }
@@ -233,7 +233,7 @@ function MoveBullets(){
             
             if(!CurrentBullet.UseGravity){
                 new Audio("Assets/SoundFx/PlaneHit.wav").play();
-                ExplosionObjs.push(new BasicObject("Explosion.png", {x: 8, y: 8}, {x: CurrentBullet.position.x, y: CurrentBullet.position.y}, true, 0, 0, GlobalTime + 0.1));
+                ExplosionObjs.push(new BasicObject("Assets/Art/Explosion.png", {x: 8, y: 8}, {x: CurrentBullet.position.x, y: CurrentBullet.position.y}, true, 0, 0, GlobalTime + 0.1));
                 CurrentBullet.UseGravity = true;
             }
         }
