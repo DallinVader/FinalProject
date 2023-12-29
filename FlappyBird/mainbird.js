@@ -7,6 +7,9 @@ let GlobalTime = 0;
 let GlobalSpeedScale = 1;
 
 const AntiAirGunCooldown = 1.5;
+const EnemyPlanesCooldown = 0.2;
+const DropShipmentSpawnTime = 10;
+const EnemyPlaneSpawnTime = 12.5;
 
 let ObjectsToDraw = [];
 let PhysicsObjs = [];
@@ -15,12 +18,17 @@ let CloudsObjs = [];
 let BulletsObjs = [];
 let AntiAirGunObjs = [];
 let ExplosionObjs = [];
+let AiEnemyPlaneObjs = [];
+let DropShipmentObjs = [];
 
 class BasicObject{
-    constructor(ImageSrc, ImageSizePixles, position, SideScrollingObj, VelocityX, VelocityY, CoolDownTime, UseGravity = true){
+    constructor(ImageSrc, ImageSizePixles, position, SideScrollingObj, VelocityX, VelocityY, CoolDownTime, UseGravity = false){
         this.position = position;
         this.IsSideScrollingObj = SideScrollingObj;
+        this.VelocityX = VelocityX;
+        this.VelocityY = VelocityY;
         this.Velocity = {x: VelocityX, y: VelocityY}
+        this.StartVelocity = {x: VelocityX, y: VelocityY};
         this.Size = ImageSizePixles;
         this.CoolDownTime = 0;
         this.UseGravity = UseGravity;
@@ -32,9 +40,11 @@ class BasicObject{
             this.Image.src = ImageSrc;
         }
         ObjectsToDraw.push(this);
-        if(this.Velocity.y != 0){
+
+        if(this.Velocity.y != 0 || this.Velocity.x != 0){
             PhysicsObjs.push(this);
         }
+
         if(SideScrollingObj){
             SideScrollingObjs.push(this);
         }
@@ -52,15 +62,18 @@ class BasicObject{
     }
 }
 
-const PlayerBird = new BasicObject("Plane.png", {x: 32, y: 16}, {x: Canvas.width / 4, y: 0}, false, 0, 0.01, 0, false);
+const PlayerBird = new BasicObject("Plane.png", {x: 32, y: 16}, {x: Canvas.width / 3, y: 0}, false, 0, 0.01, 0, false);
+
 const House = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 const House1 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 const House2 = new BasicObject("House.png", {x: 32, y: 32}, {x: Canvas.width - 32, y: canvas.height - 32}, true, GlobalGroundSpeed, 0);
 
+setTimeout("SpawnDropShipment()", DropShipmentSpawnTime);
+setTimeout("SpawnEnemyPlane()", EnemyPlaneSpawnTime * 1000);
 
 AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width - 75, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
-AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width - 45, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
-AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width - 60, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
+AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 80, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
+AntiAirGunObjs.push(new BasicObject("AntiAirGun.png", {x: 32, y: 16}, {x: Canvas.width + 160, y: canvas.height - 16}, true, GlobalGroundSpeed, 0, Math.random()));
 
 const Grass = new BasicObject("Grass.png", {x: 80, y: 16}, {x: Canvas.width + Math.abs(Math.random() * canvas.width), y: canvas.height - 16}, true, GlobalGroundSpeed, 0);
 
@@ -72,11 +85,10 @@ for (let x = 0; x < 10; x++) {
 }
 
 function Update(){
-    GlobalTime += 0.01;
+    GlobalTime += 0.0175;
 
     DrawAllDrawableObjects();
 
-    console.log(PlayerBird.position);
     if(PlayerBird.position.x != Math.round(PlayerBird.position.x)){
         PlayerBird.position.x = Math.round(PlayerBird.position.x);
     }
@@ -94,7 +106,6 @@ function Update(){
         else{
             PlayerBird.Velocity.y = 0.5;
         }
-        console.log(PlayerBird.Velocity.y);
         ExplosionObjs.push(new BasicObject("Smoke.png", {x: 8, y: 8}, {x: PlayerBird.position.x + PlayerBird.Size.x - 8.5 - (Math.random() * 10), y: PlayerBird.position.y + 2}, true, 0, -1.2, GlobalTime + 1, false));
 
     }
@@ -102,6 +113,9 @@ function Update(){
     AntiAirGuns();
     CheckExplosions();
 
+    AiEnemyPlanes();
+    
+    MoveDropShipments();
     MoveBullets();
     MovePhysicsObjects();
     MoveSideScrollingObjs();
@@ -110,12 +124,66 @@ function Update(){
     requestAnimationFrame(Update);
 }
 
+function MoveDropShipments(){
+    for (let x = 0; x < DropShipmentObjs.length; x++) {
+        let CurrentShipment = DropShipmentObjs[x];
+        CurrentShipment.Velocity.y = CurrentShipment.StartVelocity.y;
+        
+        if(CheckForCollisionWithObj(CurrentShipment, PlayerBird)){
+            PlayerBird.Velocity.x += 2;
+            RemoveObjFromObjsToDraw(CurrentShipment);
+            DropShipmentObjs.splice(x, 1);
+        }
+        if(CurrentShipment.position.y > canvas.height + CurrentShipment.Size.y){
+            RemoveObjFromObjsToDraw(CurrentShipment);
+            DropShipmentObjs.splice(x, 1);
+        }
+    }
+}
+
+function SpawnEnemyPlane(){
+    AiEnemyPlaneObjs.push(new BasicObject("EnemyPlane.png", {x: 32, y: 16}, {x: Canvas.width + 32, y: 0}, true, -1, 1, 0, false));
+    setTimeout("SpawnEnemyPlane()", EnemyPlaneSpawnTime * 1000);
+}
+
+function SpawnDropShipment(){
+    DropShipmentObjs.push(new BasicObject("DropShipment.png", {x: 16, y: 16}, {x: Canvas.width, y: 0}, true, GlobalGroundSpeed + (Math.random() * 2), 0.2, 0, false));
+    setTimeout("SpawnDropShipment()", DropShipmentSpawnTime * 1000);
+}
+
+function AiEnemyPlanes(){
+    for (let x = 0; x < AiEnemyPlaneObjs.length; x++) {
+        const CurrentEnemyPlane = AiEnemyPlaneObjs[x];
+        if(CurrentEnemyPlane.position.y < PlayerBird.position.y + PlayerBird.Size.y && CurrentEnemyPlane.position.y > PlayerBird.position.y - PlayerBird.Size.y){
+            if(CurrentEnemyPlane.CoolDownTime <= GlobalTime){
+                CurrentEnemyPlane.CoolDownTime = GlobalTime + EnemyPlanesCooldown;
+                BulletsObjs.push(new BasicObject("Bullet.png", {x: 5, y: 5}, {x: CurrentEnemyPlane.position.x + (Math.random() * 4), y: CurrentEnemyPlane.position.y}, true, -5, 0, 0.05));
+            }
+        }
+        CurrentEnemyPlane.Velocity.x = -1;
+        if(CurrentEnemyPlane.position.y < PlayerBird.position.y && PlayerBird.position.y < canvas.height - 50){
+            CurrentEnemyPlane.Velocity.y += 0.03;
+        }
+        else if(CurrentEnemyPlane.position.y > 10)
+        {
+            CurrentEnemyPlane.Velocity.y += -0.045;
+        }
+        else{
+            CurrentEnemyPlane.Velocity.y += 0.05;
+        }
+        if(CurrentEnemyPlane.position.x <= -CurrentEnemyPlane.Size.x){
+            RemoveObjFromObjsToDraw(CurrentEnemyPlane);
+            AiEnemyPlaneObjs.splice(x, 1);
+        }
+    }
+}
+
 function AntiAirGuns(){
     for (let x = 0; x < AntiAirGunObjs.length; x++) {
         const CurrentAntiAirGun = AntiAirGunObjs[x];
         if(CurrentAntiAirGun.CoolDownTime < GlobalTime){
             CurrentAntiAirGun.CoolDownTime = GlobalTime + AntiAirGunCooldown + Math.random();
-            BulletsObjs.push(new BasicObject("AntiAirShell.png", {x: 5, y: 5}, {x: CurrentAntiAirGun.position.x, y: canvas.height - CurrentAntiAirGun.Size.y}, true, -5, -2));
+            BulletsObjs.push(new BasicObject("AntiAirShell.png", {x: 5, y: 5}, {x: CurrentAntiAirGun.position.x, y: canvas.height - CurrentAntiAirGun.Size.y}, true, -3, -3, 0.15));
         }
         
     }
@@ -135,15 +203,16 @@ function CheckExplosions(){
 function MoveBullets(){
     for (let x = 0; x < BulletsObjs.length; x++) {
         const CurrentBullet = BulletsObjs[x];
-
-        CurrentBullet.Velocity = {x: -2, y: -2};
+        
+        CurrentBullet.Velocity.x = CurrentBullet.VelocityX;
+        CurrentBullet.Velocity.y = CurrentBullet.VelocityY;
         if(CheckForCollisionWithObj(CurrentBullet, PlayerBird)){
             RemoveObjFromObjsToDraw(CurrentBullet);
-            PlayerBird.Velocity.x = -1
+            PlayerBird.Velocity.x -= CurrentBullet.CoolDownTime;
             
-            if(CurrentBullet.CoolDownTime == 0){
+            if(!CurrentBullet.UseGravity){
                 ExplosionObjs.push(new BasicObject("Explosion.png", {x: 8, y: 8}, {x: CurrentBullet.position.x, y: CurrentBullet.position.y}, true, 0, 0, GlobalTime + 0.1));
-                CurrentBullet.CoolDownTime = 1;
+                CurrentBullet.UseGravity = true;
             }
         }
 
@@ -184,7 +253,7 @@ function RemoveObjFromObjsToDraw(ObjToRemove){
 function MovePhysicsObjects(){
     for (let x = 0; x < PhysicsObjs.length; x++) {
         let CurrentObj = PhysicsObjs[x];
-
+        
         CurrentObj.position.x += CurrentObj.Velocity.x;
         CurrentObj.position.y += CurrentObj.Velocity.y;
         CurrentObj.Velocity.x = CurrentObj.Velocity.x / 1.05;
