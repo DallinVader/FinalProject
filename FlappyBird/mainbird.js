@@ -1,11 +1,8 @@
 const canvas = document.getElementById("Canvas");
 const ctx = canvas.getContext("2d");
 
-console.log(canvas.width);
-console.log(canvas.height);
 canvas.width = 350;
 canvas.height = 175;
-console.log(canvas.width);
 
 
 const GlobalGravity = 0.3;
