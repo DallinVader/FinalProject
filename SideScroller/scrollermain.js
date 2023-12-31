@@ -169,6 +169,19 @@ class PlayerObject {
 }
 
 let Grass = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 32, canvas.height - 48, 2);
+let Grass1 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 8, canvas.height - (16 * 2), 5);
+let Grass2 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 20, canvas.height - (16 * 2), 1);
+let Grass3 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 30, canvas.height - (16 * 3), 3);
+let Grass4 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 35, canvas.height - (16 * 2), 4);
+let Grass5 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 42, canvas.height - (16 * 2), 1);
+let Grass6 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 60, canvas.height - (16 * 2), 10);
+let Grass7 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 64.5, canvas.height - (16 * 2), 3);
+let Grass8 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 52, canvas.height - (16 * 2), 3);
+let Grass9 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 78, canvas.height - (16 * 2), 6);
+let Grass10 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 92, canvas.height - (16 * 2), 2);
+let Grass11 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 100, canvas.height - (16 * 2), 15);
+let Grass12 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 120, canvas.height - (16 * 2), 2);
+let Grass13 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 129, canvas.height - (16 * 2), 2);
 
 let Tent = new BasicObject("Assets/Art/ArmyTent.png", 32, 16, 16 * 125, canvas.height - 32, 0);
 let CommandCenter = new BasicObject("Assets/Art/CommandCenter.png", 16, 16, 16 * 123, canvas.height - 32, 0);
