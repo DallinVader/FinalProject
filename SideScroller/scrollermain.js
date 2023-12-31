@@ -9,7 +9,7 @@ canvas.width = 350 * LevelSize;
 canvas.height = 175 * LevelSize;
 
 // Set start offset to 0 after editing
-const StartOffset = 00;
+const StartOffset = 0;
 
 const GlobalGravity = 0.03;
 const StartTime = Date.now();
