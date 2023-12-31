@@ -182,9 +182,8 @@ let Grass10 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 92, canva
 let Grass11 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 100, canvas.height - (16 * 2), 15);
 let Grass12 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 120, canvas.height - (16 * 2), 2);
 let Grass13 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 129, canvas.height - (16 * 2), 2);
+let Grass14 = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 16 * 135, canvas.height - (16 * 2), 100);
 
-let Tent = new BasicObject("Assets/Art/ArmyTent.png", 32, 16, 16 * 125, canvas.height - 32, 0);
-let CommandCenter = new BasicObject("Assets/Art/CommandCenter.png", 16, 16, 16 * 123, canvas.height - 32, 0);
 
 let GroundObj = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * -15, canvas.height - 16, 40, true);
 let GroundObj1 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 0, canvas.height - 32, 5, true);
@@ -193,12 +192,18 @@ let GroundObj3 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 28, c
 let GroundObj4 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 30, canvas.height - 32, 5, true);
 let GroundObj5 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 44, canvas.height - 32, 3, true);
 let GroundObj6 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 51, canvas.height - 16, 35, true);
-let GroundObj7 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 90, canvas.height - 16, 42, true);
+let GroundObj7 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 90, canvas.height - 16, 200, true);
 let Platfrom = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 55, canvas.height - 52, 5, true, false, true, true);
 let Platfrom1 = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 59, canvas.height - 88, 4, true, false, true, true);
 let Platfrom2 = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 65, canvas.height - 16 * 4, 3, true, false, true, true);
 
+let CommandCenter = new BasicObject("Assets/Art/CommandCenter.png", 16, 16, 16 * 123, canvas.height - 32, 0);
+
+let TentB = new BasicObject("Assets/Art/ArmyTentBack.png", 32, 16, 16 * 125, canvas.height - 32, 0);
+
 let Player = new PlayerObject("Assets/Art/Soldier.png", 16, 16, 0, canvas.height / 1.25, 0.4);
+
+let TentF = new BasicObject("Assets/Art/ArmyTentFront.png", 32, 16, 16 * 125, canvas.height - 32, 0);
 
 let Soldier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 3, canvas.height - 100, 0, 1);
 let Soldier1 = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 18, canvas.height - 100, 0, 1);
@@ -270,6 +275,7 @@ function Update(){
         }
     }
 
+    
     //Cheange enemy direction if it is about to walk of a edge.
     for (let x = 0; x < EnemyObjs.length; x++) {
         const CurrentEnemy = EnemyObjs[x];
@@ -285,10 +291,10 @@ function Update(){
         }
         if(!TempGroundCheck){
             CurrentEnemy.MoveDirection = -CurrentEnemy.MoveDirection;
-
+            
         }
     }
-
+    
     PlayerUpdateStuff();
     
     PhysicsCheck();
@@ -301,6 +307,19 @@ function Update(){
 Update();
 
 function PlayerUpdateStuff(){
+
+    if(Player.position.x > CommandCenter.position.x){
+        Player.MoveDirection = 0;
+        if(Player.position.x < TentF.position.x + 5 && Player.Velocity.y == 0){
+            MoveRight = true;
+            Player.position.x += 0.25;
+        }
+        else{
+            ctx.fillText("You Win", canvas.width / 2.25, canvas.height / 2);
+        }
+        return;
+    }
+
     Player.position.x = canvas.width / 3;
     
     NewGroundCheckObj.position.x = Player.position.x - (NewGroundCheckObj.Size.x / 4);
@@ -518,5 +537,9 @@ document.addEventListener("keyup", function(event){
     if(event.key == " "){
         IsJumping = false;
         SpacePressed = false;
+    }
+    if(event.key == "q"){
+        Player.MoveDirection = 1800;
+        console.log(Player.position.x);
     }
 })
