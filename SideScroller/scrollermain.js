@@ -21,12 +21,14 @@ let PhysicsObjs = [];
 let EnemyObjs = [];
 
 class BasicObject {
-    constructor(ImageSrc, SizeX, SizeY, PosX, PosY, Repeatable = 0, HasCollision = false, HasPhysics = false, IsVissable = true) {
+    constructor(ImageSrc, SizeX, SizeY, PosX, PosY, Repeatable = 0, HasCollision = false, HasPhysics = false, IsVissable = true, IgnoreSideCollisions = false) {
         this.position = { x: PosX, y: PosY };
         this.Size = { x: SizeX, y: SizeY };
         this.Velocity = {x: 0, y: 0};
 
         this.Repeatable = Repeatable;
+
+        this.IgnoreSideCollisions = IgnoreSideCollisions;
 
         this.Image = new Image();
         this.Image.src = ImageSrc;
@@ -62,13 +64,14 @@ class BasicObject {
 }
 
 class SoldierObject {
-    constructor(ImageSrc, SizeX, SizeY, PosX, PosY, CurrentSprite = 0, Speed = (Math.random() * 1.5 + 0.25), MoveDirection = 1) {
+    constructor(ImageSrc, SizeX, SizeY, PosX, PosY, CurrentSprite = 0, Hp = 1, Speed = (Math.random() * 1.5 + 0.25), MoveDirection = 1) {
         this.position = { x: PosX, y: PosY };
         this.Size = { x: SizeX, y: SizeY };
         this.Velocity = {x: 0, y: 0};
 
         this.Speed = Speed;
         this.MoveDirection = MoveDirection;
+        this.Hp = Hp;
         this.Repeatable = 1;
         
         this.CurrentSprite = CurrentSprite;
@@ -165,18 +168,34 @@ class PlayerObject {
     }
 }
 
-let Grass = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 32, canvas.height - 32, 3);
+let Grass = new BasicObject("Assets/Art/GrassTile.png", 16, 16, 32, canvas.height - 48, 2);
+
+let Tent = new BasicObject("Assets/Art/ArmyTent.png", 32, 16, 16 * 125, canvas.height - 32, 0);
+let CommandCenter = new BasicObject("Assets/Art/CommandCenter.png", 16, 16, 16 * 123, canvas.height - 32, 0);
+
 let GroundObj = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * -15, canvas.height - 16, 40, true);
 let GroundObj1 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 0, canvas.height - 32, 5, true);
 let GroundObj2 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 15, canvas.height - 32, 5, true);
 let GroundObj3 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 28, canvas.height - 16, 20, true);
 let GroundObj4 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 30, canvas.height - 32, 5, true);
 let GroundObj5 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 44, canvas.height - 32, 3, true);
-let GroundObj6 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 51, canvas.height - 16, 25, true);
+let GroundObj6 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 51, canvas.height - 16, 35, true);
+let GroundObj7 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 90, canvas.height - 16, 42, true);
+let Platfrom = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 55, canvas.height - 52, 5, true, false, true, true);
+let Platfrom1 = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 59, canvas.height - 88, 4, true, false, true, true);
+let Platfrom2 = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 65, canvas.height - 16 * 4, 3, true, false, true, true);
 
-let Player = new PlayerObject("Assets/Art/Soldier.png", 16, 16, 0, canvas.height / 1.25, 0.5);
+let Player = new PlayerObject("Assets/Art/Soldier.png", 16, 16, 0, canvas.height / 1.25, 0.4);
 
-let Soldier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 5.3, canvas.height - 100);
+let Soldier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 3, canvas.height - 100, 0, 1);
+let Soldier1 = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 18, canvas.height - 100, 0, 1);
+let Soldier2 = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 45, canvas.height - 100, 0, 1);
+let Soldier3 = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 30, canvas.height - 100, 0, 1);
+let Soldier4 = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 60, canvas.height - 120, 0, 1);
+let Soldier5 = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 55, canvas.height - 100, 0, 1);
+
+let GasSoldier = new SoldierObject("Assets/Art/GasSoldier.png", 16, 16, 16 * 65, canvas.height - 100, 0, 2);
+let GasSoldier1 = new SoldierObject("Assets/Art/GasSoldier.png", 16, 16, 16 * 65, canvas.height - 50, 0, 2);
 
 console.log(CollisionObjs.length);
 
@@ -228,10 +247,32 @@ function Update(){
 
         for (let x = 0; x < EnemyObjs.length; x++) {
             const CurrentEnemy = EnemyObjs[x];
-            CurrentEnemy.CurrentSprite += 1;
-            if(CurrentEnemy.CurrentSprite > 3){
-                CurrentEnemy.CurrentSprite = 0;
+
+            if(CurrentEnemy.CurrentSprite != 4){
+                CurrentEnemy.CurrentSprite += 1;
+                if(CurrentEnemy.CurrentSprite > 3){
+                    CurrentEnemy.CurrentSprite = 0;
+                }
             }
+        }
+    }
+
+    //Cheange enemy direction if it is about to walk of a edge.
+    for (let x = 0; x < EnemyObjs.length; x++) {
+        const CurrentEnemy = EnemyObjs[x];
+        
+        NewGroundCheckObj.position.x = CurrentEnemy.position.x + (16 * CurrentEnemy.MoveDirection);
+        NewGroundCheckObj.position.y = CurrentEnemy.position.y + 16;
+        let TempGroundCheck = false;
+        for (let x = 0; x < CollisionObjs.length; x++) {
+            const CurrentColl = CollisionObjs[x];
+            if(CheckForCollisionWithObjYandX(NewGroundCheckObj, CurrentColl) && CurrentColl != CurrentEnemy && CurrentColl != NewGroundCheckObj){
+                TempGroundCheck = true;
+            }
+        }
+        if(!TempGroundCheck){
+            CurrentEnemy.MoveDirection = -CurrentEnemy.MoveDirection;
+
         }
     }
 
@@ -354,6 +395,16 @@ function CheckForCollisionWithObjYandX(Obj1, Obj2){
     
     
     if(HitY && HitX && Obj1.HasPhysics){
+        if(Obj1.IgnoreSideCollisions == true || Obj2.IgnoreSideCollisions == true){
+            if(Obj1.position.y - Obj2.position.y < -Obj1.Size.y / 1.9 && Obj1.HasCollision){
+                if(Obj1 == Player && Player.IsDead){
+                    return;
+                }
+                Obj1.Velocity.y = 0;
+                Obj1.position.y -= 0.25;
+                return true;
+            }
+        }
         if(Obj1 instanceof SoldierObject && Obj1.HasCollision){
             
             if(Obj2 == Player){
@@ -361,10 +412,16 @@ function CheckForCollisionWithObjYandX(Obj1, Obj2){
                     PlayerDeath();
                 }
                 else{
-                    Obj1.Speed = 0;
-                    Obj1.HasCollision = false;
+                    Obj1.Hp -= 1;
                     Player.position.y -= 5;
                     Player.Velocity.y = -1;
+                    Obj1.Speed = Obj1.Speed * 2;
+                    if(Obj1.Hp <= 0){
+                        Obj1.Speed = 0;
+                        Obj1.Velocity.y -= 1;
+                        Obj1.CurrentSprite = 4;
+                        Obj1.HasCollision = false;
+                    }
                 }
             }
 
