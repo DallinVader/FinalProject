@@ -176,9 +176,6 @@ let GroundObj6 = new BasicObject("Assets/Art/GroundTile.png", 16, 16, 16 * 51, c
 
 let Player = new PlayerObject("Assets/Art/Soldier.png", 16, 16, 0, canvas.height / 1.25, 0.5);
 
-let Sold1ier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 8.5, canvas.height - 100);
-let Sol1dier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 7.2, canvas.height - 100);
-let So1ldier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 6.4, canvas.height - 100);
 let Soldier = new SoldierObject("Assets/Art/EnemySoldier.png", 16, 16, 16 * 5.3, canvas.height - 100);
 
 console.log(CollisionObjs.length);
@@ -293,9 +290,10 @@ function PlayerUpdateStuff(){
 }
 
 function PlayerDeath(){
-    Player = new BasicObject("Assets/Art/GroundTile.png", 16, 16, Player.position.x, Player.position.y, 0, true);
+    Player.IsDead = true;
+    Player.Velocity.y = -2
 }
-setTimeout("PlayerDeath()", 2000)
+
 function PhysicsCheck(){
     for (let p = 0; p < PhysicsObjs.length; p++) {
         let CurrentObj = PhysicsObjs[p];
@@ -356,7 +354,20 @@ function CheckForCollisionWithObjYandX(Obj1, Obj2){
     
     
     if(HitY && HitX && Obj1.HasPhysics){
-        if(Obj1 instanceof SoldierObject){
+        if(Obj1 instanceof SoldierObject && Obj1.HasCollision){
+            
+            if(Obj2 == Player){
+                if(Obj2.position.y >= Obj1.position.y - (Obj2.Size.y / 2)){
+                    PlayerDeath();
+                }
+                else{
+                    Obj1.Speed = 0;
+                    Obj1.HasCollision = false;
+                    Player.position.y -= 5;
+                    Player.Velocity.y = -1;
+                }
+            }
+
             //Checks For collision on the left side of the object.
             if(Obj1.position.x - Obj2.position.x < 0 && Obj1.Velocity.x > 0){
                 Obj1.MoveDirection = -1;
@@ -394,7 +405,10 @@ function CheckForCollisionWithObjYandX(Obj1, Obj2){
 
 
 
-        if(Obj1.position.y - Obj2.position.y < -Obj1.Size.y / 1.9){
+        if(Obj1.position.y - Obj2.position.y < -Obj1.Size.y / 1.9 && Obj1.HasCollision){
+            if(Obj1 == Player && Player.IsDead){
+                return;
+            }
             Obj1.Velocity.y = 0;
             Obj1.position.y -= 0.25;
             return true;
