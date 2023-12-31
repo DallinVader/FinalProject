@@ -8,6 +8,9 @@ const LevelSize = 1;
 canvas.width = 350 * LevelSize;
 canvas.height = 175 * LevelSize;
 
+// Set start offset to 0 after editing
+const StartOffset = 00;
+
 const GlobalGravity = 0.03;
 const StartTime = Date.now();
 
@@ -22,7 +25,7 @@ let EnemyObjs = [];
 
 class BasicObject {
     constructor(ImageSrc, SizeX, SizeY, PosX, PosY, Repeatable = 0, HasCollision = false, HasPhysics = false, IsVissable = true, IgnoreSideCollisions = false) {
-        this.position = { x: PosX, y: PosY };
+        this.position = { x: PosX - StartOffset, y: PosY };
         this.Size = { x: SizeX, y: SizeY };
         this.Velocity = {x: 0, y: 0};
 
