@@ -9,7 +9,7 @@ canvas.width = 350 * LevelSize;
 canvas.height = 175 * LevelSize;
 
 // Set start offset to 0 after editing
-const StartOffset = 0;
+const StartOffset = 1700;
 
 const GlobalGravity = 0.03;
 const StartTime = Date.now();
@@ -72,7 +72,7 @@ class BasicObject {
 
 class SoldierObject {
     constructor(ImageSrc, SizeX, SizeY, PosX, PosY, CurrentSprite = 0, Hp = 1, Speed = (Math.random() * 1.5 + 0.25), MoveDirection = 1) {
-        this.position = { x: PosX, y: PosY };
+        this.position = { x: PosX - StartOffset, y: PosY };
         this.Size = { x: SizeX, y: SizeY };
         this.Velocity = {x: 0, y: 0};
 
@@ -204,7 +204,8 @@ let Platfrom = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 55, canva
 let Platfrom1 = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 59, canvas.height - 88, 4, true, false, true, true);
 let Platfrom2 = new BasicObject("Assets/Art/Platform.png", 16, 16, 16 * 65, canvas.height - 16 * 4, 3, true, false, true, true);
 
-let CommandCenter = new BasicObject("Assets/Art/CommandCenter.png", 16, 16, 16 * 123, canvas.height - 32, 0);
+let Flag = new BasicObject("Assets/Art/Flag.png", 16, 112, 16 * 123, canvas.height - 128, 0);
+let CommandCenter = new BasicObject("Assets/Art/CommandCenter.png", 16, 16, 16 * 124, canvas.height - 32, 0);
 
 let TentB = new BasicObject("Assets/Art/ArmyTentBack.png", 32, 16, 16 * 125, canvas.height - 32, 0);
 
@@ -315,13 +316,20 @@ Update();
 
 function PlayerUpdateStuff(){
 
-    if(Player.position.x > CommandCenter.position.x){
+    if(Player.position.x > Flag.position.x - 9){
+        if(Player.position.y < Flag.position.y - 8){
+            Player.position.y = Flag.position.y - 8;
+            console.log("move to flag " + Player.position.y);
+        }
         Player.MoveDirection = 0;
         if(Player.position.x < TentF.position.x + 5 && Player.Velocity.y == 0){
             WonTheGame = true;
             MoveRight = true;
+            PlayerGroundCheck = true;
             Player.position.x += 0.25;
+            Player.Velocity.y = 0;
         }
+        Player.Velocity.y = 0.25;
         return;
     }
 
@@ -404,10 +412,7 @@ function PhysicsCheck(){
 
 function DrawAllDrawableObjects(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if(WonTheGame){
-        ctx.fillText("You Win", canvas.width / 2.25, canvas.height / 2);
-    }
-
+    
     for (let x = 0; x < DrawableObjs.length; x++) {
         const CurrentObj = DrawableObjs[x];
         if(CurrentObj != Player){
@@ -417,6 +422,10 @@ function DrawAllDrawableObjects(){
         else{
             CurrentObj.draw();
         }
+    }
+
+    if(WonTheGame){
+        ctx.fillText("You Win", canvas.width / 2.25, canvas.height / 2);
     }
     setTimeout("DrawAllDrawableObjects()")
 }
@@ -522,6 +531,10 @@ function CheckForCollisionWithObjYandX(Obj1, Obj2){
 
 let SpacePressed = false;
 document.addEventListener("keydown", function(event){
+
+    if(WonTheGame){
+        return;
+    }
     if(event.key == "d" || event.key == "D"){
         MoveRight = true;
     }
