@@ -23,6 +23,10 @@ let CollisionObjs = [];
 let PhysicsObjs = [];
 let EnemyObjs = [];
 
+
+
+let WonTheGame = false;
+
 class BasicObject {
     constructor(ImageSrc, SizeX, SizeY, PosX, PosY, Repeatable = 0, HasCollision = false, HasPhysics = false, IsVissable = true, IgnoreSideCollisions = false) {
         this.position = { x: PosX - StartOffset, y: PosY };
@@ -314,11 +318,9 @@ function PlayerUpdateStuff(){
     if(Player.position.x > CommandCenter.position.x){
         Player.MoveDirection = 0;
         if(Player.position.x < TentF.position.x + 5 && Player.Velocity.y == 0){
+            WonTheGame = true;
             MoveRight = true;
             Player.position.x += 0.25;
-        }
-        else{
-            ctx.fillText("You Win", canvas.width / 2.25, canvas.height / 2);
         }
         return;
     }
@@ -402,6 +404,10 @@ function PhysicsCheck(){
 
 function DrawAllDrawableObjects(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if(WonTheGame){
+        ctx.fillText("You Win", canvas.width / 2.25, canvas.height / 2);
+    }
+
     for (let x = 0; x < DrawableObjs.length; x++) {
         const CurrentObj = DrawableObjs[x];
         if(CurrentObj != Player){
