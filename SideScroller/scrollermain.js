@@ -9,7 +9,7 @@ canvas.width = 350 * LevelSize;
 canvas.height = 175 * LevelSize;
 
 // Set start offset to 0 after editing
-const StartOffset = 1700;
+const StartOffset = 0;
 
 const GlobalGravity = 0.03;
 const StartTime = Date.now();
@@ -228,7 +228,7 @@ console.log(CollisionObjs.length);
 let FPS;
 let LastFps = new Date();
 function CheckFps(){
-    FpsDisplay.innerText = "frames per second " + Math.round(FPS);
+    FpsDisplay.innerText = Math.round(FPS);
     
     setTimeout("CheckFps()", 100);
 }
@@ -315,6 +315,9 @@ function Update(){
 Update();
 
 function PlayerUpdateStuff(){
+    if(Player.position.y > canvas.height * 1.5){
+        location.href = location.href;
+    }
 
     if(Player.position.x > Flag.position.x - 9){
         if(Player.position.y < Flag.position.y - 8){
@@ -339,9 +342,6 @@ function PlayerUpdateStuff(){
     NewGroundCheckObj.position.y = Player.position.y + (Player.Size.y / 2);
     
     
-    if(Player.position.y > canvas.height * 1.5){
-        location.reload();
-    }
 
     if(Player.IsDead){
         PlayerGroundCheck = false;
@@ -426,6 +426,10 @@ function DrawAllDrawableObjects(){
 
     if(WonTheGame){
         ctx.fillText("You Win", canvas.width / 2.25, canvas.height / 2);
+        setTimeout(function LoadFlappyBirdGame(){
+            console.log("oafsjdioafsd");
+            location.href = '../FlappyBird/indexbird.html';
+        }, 4000);
     }
     setTimeout("DrawAllDrawableObjects()")
 }
